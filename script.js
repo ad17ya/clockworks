@@ -1,7 +1,7 @@
 let timerObj = {
     minutes: 0,
     seconds: 0,
-    timerId: 0
+    timerId: 0,
 }
 
 function soundAlarm() {
@@ -14,7 +14,7 @@ function soundAlarm() {
 
     }
 
-    for (let i = 0; i < amount;  i++) {
+    for (let i = 1; i < amount;  i++) {
         setTimeout(playSound, 1200 * i);
     }
 }
@@ -26,7 +26,7 @@ function updateValue(key, value) {
     }
 
     if(key == "seconds"){
-        if(value < 0){
+        if(value < 10){
             value = "0" + value;
         }
 
@@ -35,7 +35,7 @@ function updateValue(key, value) {
         }
     }
 
-    $("#" +key).html(value || 0);
+    $("#" + key).html(value || 0);
     timerObj[key] = value;
 }
 
@@ -55,15 +55,38 @@ function updateValue(key, value) {
 
 function startTimer() {
     ButtonManager(["start", false], ["pause", true], ["stop",true]);
+    freezeInputs();
+
+    timerObj.timerId = setInterval(function () {
+        timerObj.seconds--;
+        if (timerObj.seconds < 0) {
+            if (timerObj.minutes == 0) {
+                soundAlarm();
+                return stopTimer();
+
+            }
+            timerObj.seconds = 59;
+            timerObj.minutes--;
+        }
+        updateValue("minutes", timerObj.minutes);
+        updateValue("seconds", timerObj.seconds);
+    }, 1000);
 }
 
 function stopTimer() {
+    clearInterval(timerObj.timerId);
     ButtonManager(["start", true], ["pause", false], ["stop",false]);
+    unfreezeInputs();
+    updateValue("minutes",$("minutes-input").val());
 
+    let seconds = $("#seconds-input").val();
+    if(seconds < 10) { seconds = "0" + seconds; }
+    updateValue("seconds", seconds);
 }
 
 function pauseTimer() {
     ButtonManager(["start", true], ["pause", false], ["stop",true]);
+    clearInterval(timerObj.timerId);
 }
 
 function ButtonManager(...buttonsArray) {
@@ -76,4 +99,14 @@ function ButtonManager(...buttonsArray) {
             $(button).attr('disabled', 'disabled');
         }
     }
+}
+
+function freezeInputs(){
+    $("#minutes-input").attr('disabled','disabled');
+    $("#seconds-input").attr('disabled','disabled');
+}
+
+function unfreezeInputs(){
+    $("#minutes-input").removeAttr('disabled');
+    $("#seconds-input").removeAttr('disabled');
 }
