@@ -7,10 +7,6 @@ let timerObj = {
 function soundAlarm() {
     let amount = 3;
     let audio = new Audio("sound.mp3");
-
-
-    // audio.play();
-
     function playSound() {
         audio.pause();
         audio.currentTime = 0;
@@ -27,7 +23,6 @@ function updateValue(key, value) {
     if(value < 0){
         value = 0;
         console.log("Positive numbers only");
-
     }
 
     if(key == "seconds"){
@@ -42,14 +37,10 @@ function updateValue(key, value) {
 
     $("#" +key).html(value || 0);
     timerObj[key] = value;
-
-    console.log("Min", timerObj.minutes);
-    console.log("Sec", timerObj.seconds);
 }
 
 //self calling function ()indicate the calling of the functions
 (function detectChanges(key) {
-    console.log("detect changes");
     let input = "#" + key +"-input";
 
     $(input).change(function() {
@@ -59,7 +50,30 @@ function updateValue(key, value) {
     $(input).keyup(function() {
         updateValue(key, $(input).val());
     });
-
     return arguments.callee;
-
 })("minutes")("seconds");
+
+function startTimer() {
+    ButtonManager(["start", false], ["pause", true], ["stop",true]);
+}
+
+function stopTimer() {
+    ButtonManager(["start", true], ["pause", false], ["stop",false]);
+
+}
+
+function pauseTimer() {
+    ButtonManager(["start", true], ["pause", false], ["stop",true]);
+}
+
+function ButtonManager(...buttonsArray) {
+    for (let i = 0; i < buttonsArray.length; i++) {
+        let button = "#" + buttonsArray[i][0] + "-button";
+        if(buttonsArray[i][1]) {
+            $(button).removeAttr('disabled');
+        }
+        else {
+            $(button).attr('disabled', 'disabled');
+        }
+    }
+}
